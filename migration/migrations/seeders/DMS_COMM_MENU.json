@@ -1,0 +1,101 @@
+[
+	{
+		"menu_id" : 1,
+		"menu_type" : "ROOT",
+		"menu_name" : "batch",
+		"menu_level" : 0,
+		"menu_path" : "",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : null,
+		"upper_menu_name" : "",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 2,
+		"menu_type" : "ROOT",
+		"menu_name" : "설정",
+		"menu_level" : 0,
+		"menu_path" : "",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : null,
+		"upper_menu_name" : "",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 3,
+		"menu_type" : "NONE",
+		"menu_name" : "job 관리",
+		"menu_level" : 1,
+		"menu_path" : "/job/list",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 1,
+		"upper_menu_name" : "job",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 4,
+		"menu_type" : "NONE",
+		"menu_name" : "스케줄 관리",
+		"menu_level" : 1,
+		"menu_path" : "/job/schedule/list",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 1,
+		"upper_menu_name" : "job",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 5,
+		"menu_type" : "NONE",
+		"menu_name" : "메뉴 관리",
+		"menu_level" : 1,
+		"menu_path" : "/settings/menu/list",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 2,
+		"upper_menu_name" : "settings",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 6,
+		"menu_type" : "NONE",
+		"menu_name" : "그룹 관리",
+		"menu_level" : 1,
+		"menu_path" : "/settings/group/list",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 2,
+		"upper_menu_name" : "settings",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 7,
+		"menu_type" : "NONE",
+		"menu_name" : "권한 관리",
+		"menu_level" : 1,
+		"menu_path" : "/role/list",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 2,
+		"upper_menu_name" : "settings",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 8,
+		"menu_type" : "NONE",
+		"menu_name" : "메뉴 권한 관리",
+		"menu_level" : 2,
+		"menu_path" : "/settings/role/menu",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 8,
+		"upper_menu_name" : "권한 관리",
+		"use_yn" : "Y"
+	},
+	{
+		"menu_id" : 9,
+		"menu_type" : "NONE",
+		"menu_name" : "공통코드 관리",
+		"menu_level" : 1,
+		"menu_path" : "/settings/code",
+		"menu_icon" : "pi pi-search",
+		"upper_menu_id" : 2,
+		"upper_menu_name" : "settings",
+		"use_yn" : "Y"
+	}
+]

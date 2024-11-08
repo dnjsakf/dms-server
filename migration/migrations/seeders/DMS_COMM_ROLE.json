@@ -1,0 +1,42 @@
+[
+	{
+		"role_id" : "1",
+		"role_name" : "ADMIN",
+		"role_desc" : "시스템 전체를 관리할 수 있는 최고 권한",
+		"role_level" : 1,
+		"sort_order" : 0,
+		"use_yn" : "Y"
+	},
+	{
+		"role_id" : "2",
+		"role_name" : "MASTER",
+		"role_desc" : "최고 사용자 권한으로, 모든 콘텐츠를 관리할 수 있는 권한",
+		"role_level" : 2,
+		"sort_order" : 0,
+		"use_yn" : "Y"
+	},
+	{
+		"role_id" : "3",
+		"role_name" : "MANAGER",
+		"role_desc" : "관리 사용자 권한으로, 사용자 콘텐츠를 관리할 수 있는 권한",
+		"role_level" : 3,
+		"sort_order" : 0,
+		"use_yn" : "Y"
+	},
+	{
+		"role_id" : "4",
+		"role_name" : "USER",
+		"role_desc" : "일반 사용자 권한으로, 기본적인 읽기 및 쓰기 권한",
+		"role_level" : 4,
+		"sort_order" : 0,
+		"use_yn" : "Y"
+	},
+	{
+		"role_id" : "5",
+		"role_name" : "GUEST",
+		"role_desc" : "제한된 읽기 권한만을 가지는 권한",
+		"role_level" : 5,
+		"sort_order" : 0,
+		"use_yn" : "Y"
+	}
+]

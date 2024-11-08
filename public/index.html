@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Express HTML Example</title>
+    </head>
+    <body>
+        <h1>Hello, Express!!! <span id="userName">Unknown</span></h1>
+        <button onClick="document.location = '/register'">register</button>
+        <button onClick="document.location = '/login'">login</button>
+        <button onClick="document.location = '/logout'">logout</button>
+        <button onClick="document.location = '/graphiql'">graphiql</button>
+        <script>
+            fetch('/api/session')
+                .then((res)=>(res.json()))
+                .then((user)=>{
+                    document.querySelector('#userName').innerHTML = user?.username || "Unknown";
+                });
+        </script>
+    </body>
+</html>
