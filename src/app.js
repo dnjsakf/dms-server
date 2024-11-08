@@ -14,6 +14,7 @@ import { schema, root } from './config/graphqlConfig';
 
 // Utils
 import { loadEnv } from './utils/envUtil';
+import { getPath } from './utils/pathUtil';
 
 // Middlewares
 import authMiddleware from './middlewares/authMiddleware';
@@ -34,7 +35,7 @@ const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000;
 const app = express();
 
 // 정적파일 경로 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(getPath('public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -64,6 +65,8 @@ app.use('/api/graphql', createHandler({
 }));
 
 // Routes
+import commonRoutes from './routes/common/commonRoutes';
+app.use('/', commonRoutes);
 app.use('/api', authMiddleware, routes);
 
 // Run Server
