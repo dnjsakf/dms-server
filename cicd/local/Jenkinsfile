@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    environment {
+        BUILD_TARGET = 'dev'
+        DOCKER_CONTAINER_NAME = "dms-server"
+        DOCKER_IMAGE = "dnjsakf/${DOCKER_CONTAINER_NAME}"
+        DOCKER_IMAGE_TAG = "${env.BUILD_ID}-${BUILD_TARGET}"
+        DOCKER_CREDENTIALS_ID = 'docker-credentials'
+        BUILD_HOME = "${env.JENKINS_HOME}/build/${env.JOB_NAME}"
+        WORKSPACE_MAIN = "${env.WORKSPACE}"
+        CI = false
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Express is no build"
+            }
+            // agent {
+            //     docker {
+            //         image 'node:22.7.0-alpine'
+            //         args '-p 4000:3000'
+            //     }
+            // }
+            // steps {
+            //     sh 'npm install'
+            //     sh 'npm run build'
+            // }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    // 기존 컨테이너 중지 및 삭제
+                    sh """
+                    if [ \$(docker ps -q -f name=${DOCKER_CONTAINER_NAME}) ]; then
+                        docker stop ${DOCKER_CONTAINER_NAME}
+                        docker rm ${DOCKER_CONTAINER_NAME}
+                    fi
+                    """
+                    
+                    // 새로운 컨테이너 실행
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                        def nodeImage = docker.build("${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG}", "-f ./cicd/${BUILD_TARGET}/Dockerfile .")
+                        nodeImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+                script {
+                    def container = docker.image("${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG}")
+                    container.run("-d -p 4000:3000 --name ${DOCKER_CONTAINER_NAME}")
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            sh 'echo "This will run only if all stages succeed"'
+        }
+        failure {
+            sh 'echo "This will run only if any stage fails"'
+        }
+    }
+}
