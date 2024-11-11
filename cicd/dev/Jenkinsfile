@@ -60,6 +60,17 @@ pipeline {
                 }
             }
         }
+
+        // stage('Trigger ArgoCD Sync') {
+        stage('Running container') {
+            steps {
+                script {
+                    def container = docker.image("${env.DOCKER_IMAGE_TAG_LATEST}")
+                    // container.run("-d -p 3000:80 --network bridge --name ${env.APP_NAME}")
+                    container.run("-d --network bridge --name ${env.APP_NAME}")
+                }
+            }
+        }
     }
 
     post {
