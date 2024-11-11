@@ -90,7 +90,7 @@ pipeline {
                 script {
                     def container = docker.image("${env.DOCKER_IMAGE_TAG_LATEST}")
                     // container.run("-d -p 3000:80 --network bridge --name ${env.APP_NAME}")
-                    container.run("-d --network bridge --name ${env.APP_NAME}")
+                    container.run("-d --add-host host.docker.internal:host-gateway --network bridge --name ${env.APP_NAME}")
                 }
             }
         }
