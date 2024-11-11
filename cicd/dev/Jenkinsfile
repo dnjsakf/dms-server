@@ -61,6 +61,29 @@ pipeline {
             }
         }
 
+        stage('Checkout Deploy Repo') {
+            steps {
+                git credentialsId: "${env.DEPLOY_CREDENTIALS_ID}",
+                    branch: 'main',
+                    url: "https://${env.DEPLOY_REPO_URL}"
+            }
+        }
+
+        stage('Update Deployment YAML') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${env.DEPLOY_CREDENTIALS_ID}", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh """
+                    sed -i 's|image:.*|image: ${env.DOCKER_IMAGE_TAG}|' ${env.DEPLOY_PATH}
+                    git config user.email "${GIT_USERNAME}@example.com"
+                    git config user.name "${GIT_USERNAME}"
+                    git add ${env.DEPLOY_PATH}
+                    git commit -m "Update image to ${env.DOCKER_IMAGE_TAG}"
+                    git push https://${GIT_USERNAME}:${GIT_PASSWORD}@${env.DEPLOY_REPO_URL}
+                    """
+                }
+            }
+        }
+
         // stage('Trigger ArgoCD Sync') {
         stage('Running container') {
             steps {
