@@ -16,7 +16,9 @@
     "migrate:reset": "cross-env NODE_ENV=development babel-node ../node_modules/sequelize-cli/lib/sequelize db:migrate:undo:all --config ./migration/config/config.js --migrations-path ./migration/migrations --models-path ./src/models",
     "migrate:local:reset": "cross-env NODE_ENV=local babel-node ../node_modules/sequelize-cli/lib/sequelize db:migrate:undo:all --config ./migration/config/config.js --migrations-path ./migration/migrations --models-path ./src/models",
     "migration": "node migration",
-    "test": "cross-env NODE_ENV=local jest --watchAll=false --detectOpenHandles ./tests/cache.test.js"
+    "test": "cross-env NODE_ENV=local jest --watchAll=false --detectOpenHandles ./tests/cache.test.js",
+    "docker:build": "docker build -t dnjsakf/dms-server:latest -f ./cicd/dev/Dockerfile .",
+    "docker:run": "docker run -d --add-host host.docker.internal:host-gateway --network bridge --name dms-server dnjsakf/dms-server:latest"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
