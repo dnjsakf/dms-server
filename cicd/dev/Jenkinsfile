@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        ARGOCD_APP_NAME = 'dms-app'
         APP_NAME = 'dms-server'
         
         BUILD_TARGET = 'dev'
@@ -9,7 +10,7 @@ pipeline {
 
         DEPLOY_CREDENTIALS_ID = 'github-user'
         DEPLOY_REPO_URL = 'github.com/dnjsakf/argocd-apps.git'
-        DEPLOY_PATH = "${env.APP_NAME}/${env.APP_NAME}-deployment.yaml"
+        DEPLOY_PATH = "${env.ARGOCD_APP_NAME}/${env.APP_NAME}/${env.APP_NAME}-deployment.yaml"
 
         DOCKER_CREDENTIALS_ID = 'docker-user'
         DOCKER_IMAGE_NAME = "dnjsakf/${env.APP_NAME}"
@@ -17,7 +18,7 @@ pipeline {
         DOCKER_IMAGE_TAG_LATEST = "${env.DOCKER_IMAGE_NAME}:latest"
 
         ARGOCD_SERVER = 'https://host.docker.internal:38080'
-        ARGOCD_AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJhcGl1c2VyOmFwaUtleSIsIm5iZiI6MTcyODAyMDM1OCwiaWF0IjoxNzI4MDIwMzU4LCJqdGkiOiI1NjIzODM5Yy0yY2VmLTQzMzktYjc5NS02OGM5OTJiOTJhNjcifQ.XLd48Zyd1bU14SpFDnGZrJlf5t4ua3rqKHBHJAo6n3k'
+        ARGOCD_AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJhcGl1c2VyOmFwaUtleSIsIm5iZiI6MTczMTMxMjQyMSwiaWF0IjoxNzMxMzEyNDIxLCJqdGkiOiIxMGExZTIwNy1jMThlLTRlNjQtOWY3OC03ODU5MjBjOTQyOTgifQ.3w8dhtj6S8nGoYV9d2uhitPvkzn41VLeYvzeWqbdNcY'
     }
 
     stages {
@@ -84,13 +85,24 @@ pipeline {
             }
         }
 
-        // stage('Trigger ArgoCD Sync') {
-        stage('Running container') {
+        // stage('Running container') {
+        //     steps {
+        //         script {
+        //             def container = docker.image("${env.DOCKER_IMAGE_TAG_LATEST}")
+        //             container.run("-d -p 3000:80 --network bridge --name ${env.APP_NAME}")
+        //             container.run("-d --add-host host.docker.internal:host-gateway --network bridge --name ${env.APP_NAME}")
+        //         }
+        //     }
+        // }
+
+        stage('Trigger ArgoCD Sync') {
             steps {
                 script {
-                    def container = docker.image("${env.DOCKER_IMAGE_TAG_LATEST}")
-                    // container.run("-d -p 3000:80 --network bridge --name ${env.APP_NAME}")
-                    container.run("-d --add-host host.docker.internal:host-gateway --network bridge --name ${env.APP_NAME}")
+                    sh """
+                    curl -k -X POST ${env.ARGOCD_SERVER}/api/v1/applications/${env.ARGOCD_APP_NAME}/sync \
+                    -H "Content-Type: application/json" \
+                    -H "Authorization: Bearer ${env.ARGOCD_AUTH_TOKEN}"
+                    """
                 }
             }
         }
