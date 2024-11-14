@@ -65,8 +65,8 @@ app.use('/api/graphql', createHandler({
 }));
 
 // Routes
-import commonRoutes from './routes/common/commonRoutes';
-app.use('/', commonRoutes);
+// import commonRoutes from './routes/common/commonRoutes';
+// app.use('/', commonRoutes);
 app.use('/api', authMiddleware, routes);
 
 // Run Server
