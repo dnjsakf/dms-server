@@ -5,6 +5,7 @@ import CommonService from '../../services/common/commonService';
 export const getIndex = async (req, res) => {
   try {
     res.sendFile(getPath('public', 'index.html'));
+    // res.sendFile(getPath('../client/dist', 'index.html'));
   } catch ( error ) {
     res.status(500).json({
       code: 500,

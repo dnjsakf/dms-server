@@ -3,7 +3,7 @@ const sessionMiddleware = (req, res, next) => {
     userId: "Annoymous",
   }
   if ( req.session?.user ) {
-    sessinoUser = req.session.user;
+    sessionUser = req.session.user;
   }
   if( req.method !== "GET" && req.body ){
     req.body.onCreate = function(){

@@ -57,6 +57,15 @@ app.use(session({
 // Custom Middlewares
 app.use(sessionMiddleware);
 
+// "/api" 로 들어오는 요청 외에는 모두 "/"로 리디렉션
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api')) {
+    res.redirect('/');
+  } else {
+    next();
+  }
+});
+
 // GraphQL API
 app.use('/api/graphql', createHandler({
   schema: schema,
