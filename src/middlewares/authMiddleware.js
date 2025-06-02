@@ -14,6 +14,10 @@ const authMiddleware = async (req, res, next) => {
   if (req.path?.startsWith('/auth')) {
     return next();
   }
+  // /api/mb 경로로 들어오는 요청은 인증을 생략
+  if (req.path?.startsWith('/mb')) {
+    return next();
+  }
 
   if( !token ){
     return res.status(401).json({

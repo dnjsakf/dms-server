@@ -14,6 +14,9 @@ import codeItemRoutes from './common/codeItemRoutes';
 import jobRoutes from './batch/jobRoutes';
 import jobScheduleRoutes from './batch/jobScheduleRoutes';
 
+import mobinogiRoutes from './mobinogi/mobinogiRoutes';
+import runeRoutes from './mobinogi/runeRoutes';
+
 const router = express.Router();
 
 // common
@@ -31,5 +34,9 @@ router.use('/code/item', codeItemRoutes);
 // batch
 router.use('/job', jobRoutes);
 router.use('/job/schedule', jobScheduleRoutes);
+
+// mobinogi
+router.use('/mb', mobinogiRoutes);
+router.use('/mb/rune', runeRoutes);
 
 export default router;

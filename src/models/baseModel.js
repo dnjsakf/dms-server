@@ -36,7 +36,8 @@ class BaseModel extends Model {
         field: 'upd_dttm',
         comment: '수정일시',
         get(){
-          return dayjs(this.getDataValue('updDttm')).format('YYYY-MM-DD HH:mm:ss');
+          const updDttm = this.getDataValue('updDttm');
+          return updDttm ? dayjs(updDttm).format('YYYY-MM-DD HH:mm:ss') : null;
         }
       },
     }, {
