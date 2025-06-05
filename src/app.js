@@ -18,6 +18,7 @@ import { getPath } from './utils/pathUtil';
 
 // Middlewares
 import authMiddleware from './middlewares/authMiddleware';
+import permissionMiddleware from './middlewares/permissionMiddleware';
 import sessionMiddleware from './middlewares/sessionMiddleware';
 
 // Routes
@@ -41,8 +42,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS 
 app.use(cors({
-  // ALL
   // origin: 'http://localhost:4001', // 요청을 허용할 출처
+  origin: [
+    "http://localhost:4000",
+    "http://localhost:4001"
+  ],
+  credentials: true
 }));
 
 // Redis Session Setting
@@ -76,7 +81,7 @@ app.use('/api/graphql', createHandler({
 // Routes
 // import commonRoutes from './routes/common/commonRoutes';
 // app.use('/', commonRoutes);
-app.use('/api', authMiddleware, routes);
+app.use('/api', authMiddleware, permissionMiddleware, routes);
 
 // Run Server
 sequelize.authenticate()

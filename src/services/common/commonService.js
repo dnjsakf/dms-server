@@ -11,13 +11,47 @@ import CommCodeModel from "../../models/common/commCodeModel";
 import CommCodeItemModel from "../../models/common/commCodeItemModel";
 
 export const getInitData = async ( params ) => {
-  
+
+  const conds = {
+    userId: params.userId || '-1'
+  }
+
+  let userRole = await Sequelize.query(`
+    /* CommonService.getUserRole */
+    select t.role_id AS "roleId"
+         , t.role_level AS "roleLevel"
+         , t.role_name AS "roleName"
+      from dms_comm_role t
+     where 1=1
+       and role_id = (
+           select coalesce(
+                   min(t3.role_id),
+                   (select max(s1.role_id) from dms_comm_role s1)
+                   ) as role_id
+             from dms_comm_user t1
+             inner join dms_comm_user_role t2
+               on t2.user_id = t1.user_id
+             inner join dms_comm_role t3
+               on t3.role_id = t2.role_id
+             where 1=1
+               and t1.user_id = COALESCE(:userId, '-1')
+           )
+  `, {
+    type: QueryTypes.SELECT,
+    replacements: {
+      userId: conds.userId
+    },
+    plain: true, // 단일 객체로 반환
+  });
+
   let roles = await Sequelize.query(`
     /* CommonService.getUserRoles */
     SELECT DISTINCT
            A.role_name AS "roleName"
       FROM dms_comm_role A
      WHERE 1=1
+       AND A.role_level >= :roleLevel
+     /*
        AND A.role_level >= (
            SELECT min(T3.role_level)
              FROM dms_comm_user T1
@@ -26,12 +60,14 @@ export const getInitData = async ( params ) => {
             INNER JOIN dms_comm_role T3
                ON T3.role_id = T2.role_id
             WHERE 1=1
-              AND T1.user_id = :userId
+              AND T1.user_id = COALESCE(:userId, '-1')
            )
+      */
   `, {
     type: QueryTypes.SELECT,
     replacements: {
-      userId: params.userId
+      // userId: conds.userId
+      roleLevel: userRole.roleLevel
     },
   });
   roles = roles.map(({ roleName })=>( roleName ))
@@ -54,6 +90,8 @@ export const getInitData = async ( params ) => {
      INNER JOIN dms_comm_menu C
         ON C.menu_id = B.menu_id
      WHERE 1=1
+       AND A.role_level >= :roleLevel
+      /*
        AND A.role_level >= (
            SELECT MIN(T3.role_level)
              FROM dms_comm_user T1
@@ -62,13 +100,15 @@ export const getInitData = async ( params ) => {
             INNER JOIN dms_comm_role T3
                ON T3.role_id = T2.role_id
             WHERE 1=1
-              AND T1.user_id = :userId
+              AND T1.user_id = COALESCE(:userId, '-1')
            )
+      */
        AND C.use_yn = 'Y'
   `, {
     type: QueryTypes.SELECT,
     replacements: {
-      userId: params.userId
+      // userId: conds.userId
+      roleLevel: userRole.roleLevel
     },
   });
 

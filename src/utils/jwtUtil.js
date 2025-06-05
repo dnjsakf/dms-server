@@ -11,13 +11,17 @@ const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
 
 /**
  * ip랑 agent로 세션 토큰 키 생성
+ * -> platform 으로 토큰 키 생성
  * @param {*} data 
  * @returns 
  */
 const generateUniqueKey = (data) => {
-  const hashed = crypto.createHash('sha256').update(`${data.ip}-${data.agent}`).digest('hex');
-  const redisKey = `${JWT_STORE_PREFIX}:${data.userId}:${hashed}`
-  return redisKey;
+  // const hashed = crypto.createHash('sha256').update(`${data.ip}-${data.agent}`).digest('hex');
+  // const redisKey = `${JWT_STORE_PREFIX}:${data.userId}:${hashed}`
+  // return redisKey;
+  // const hashed = crypto.createHash('sha256').update(`${data.ip}-${data.agent}`).digest('hex');
+  const redisKey = `${JWT_STORE_PREFIX}:${data.sub}:${data.platform}`;
+  return redisKey.toUpperCase();
 }
 
 /**
@@ -69,9 +73,18 @@ export const delStoreToken = ( data ) => {
  * @param {*} data 
  * @returns 
  */
-export const generateAccessToken = ( data ) => {
+export const generateAccessToken = ({
+  sub,
+  platform
+}) => {
+  const tokenData = {
+    sub,
+    platform,
+  }
   const ttl = getAccessTokenTTL();
-  return jwt.sign(data, JWT_ACCESS_SECRET_KEY, { expiresIn: ttl ||'30m' });
+  const accessToken = jwt.sign(tokenData, JWT_ACCESS_SECRET_KEY, { expiresIn: ttl ||'30m' });;
+  setStoreToken(tokenData, accessToken);
+  return accessToken;
 }
 
 /**
@@ -79,10 +92,17 @@ export const generateAccessToken = ( data ) => {
  * @param {*} data 
  * @returns 
  */
-export const generateRefreshToken = ( data ) => {
+export const generateRefreshToken = ({
+  sub,
+  platform
+}) => {
+  const tokenData = {
+    sub,
+    platform,
+  }
   const ttl = getRefreshTokenTTL();
-  const refreshToken = jwt.sign(data, JWT_REFRESH_SECRET_KEY, { expiresIn: ttl || '7d' });
-  setStoreToken(data, refreshToken);
+  const refreshToken = jwt.sign(tokenData, JWT_REFRESH_SECRET_KEY, { expiresIn: ttl || '7d' });
+  setStoreToken(tokenData, refreshToken);
   return refreshToken;
 }
 
@@ -91,7 +111,12 @@ export const generateRefreshToken = ( data ) => {
  * @param {*} param0 
  * @returns 
  */
-export const verifyAccessToken = async ({ accessToken, ip, agent }) => {
+export const verifyAccessToken = async ({
+  accessToken,
+  ip,
+  agent,
+  platform
+}) => {
   return new Promise((resolve, reject) => {
     if( !accessToken ){
       return reject('Token is required');
@@ -101,10 +126,28 @@ export const verifyAccessToken = async ({ accessToken, ip, agent }) => {
         console.error(err);
         return reject('Invalid or expired token');
       }
-      if( data.ip !== ip || data.agent !== agent ){
-        return reject('Invalid agent.');
+      const redisData = await getUserSession({
+        ...data,
+        platform
+      });
+      if( !redisData ){
+        return reject('Invalid Token.');
       }
-      return resolve(data);
+      if( redisData.platform != platform ){
+        return reject('Invalid Platform.');
+      }
+      if( redisData.ip != ip ){
+        return reject('Invalid IP Addres.');
+      }
+      if( redisData.agent != agent ){
+        return reject('Invalid Agent.');
+      }
+      // const checkA = crypto.createHash('sha256').update(`${redisData.ip}-${redisData.agent}`).digest('hex');
+      // const checkB = crypto.createHash('sha256').update(`${ip}-${agent}`).digest('hex');
+      // if( checkA !== checkB ){
+      //   return reject('Invalid Agent.');
+      // }
+      return resolve(redisData);
     });
   });
 }
@@ -114,7 +157,12 @@ export const verifyAccessToken = async ({ accessToken, ip, agent }) => {
  * @param {*} param0 
  * @returns 
  */
-export const verifyRefreshToken = async ({ refreshToken, ip, agent }) => {
+export const verifyRefreshToken = async ({
+  refreshToken,
+  ip,
+  agent,
+  platform
+}) => {
   return new Promise((resolve, reject) => {
     if( !refreshToken ){
       return reject({
@@ -130,13 +178,31 @@ export const verifyRefreshToken = async ({ refreshToken, ip, agent }) => {
           message: 'Invalid or expired refresh token.',
         });
       }
+      const redisData = await getUserSession({
+        ...data,
+        platform
+      });
       try {
-        if( data.ip !== ip || data.agent !== agent ){
-          return reject({
-            code: 403,
-            message: 'Invalid agent.'
-          });
+        if( !redisData ){
+          return reject('Invalid Token.');
         }
+        if( redisData.platform != platform ){
+          return reject('Invalid Platform.');
+        }
+        if( redisData.ip != ip ){
+          return reject('Invalid IP Addres.');
+        }
+        if( redisData.agent != agent ){
+          return reject('Invalid Agent.');
+        }
+        // const checkA = crypto.createHash('sha256').update(`${redisData.ip}-${redisData.agent}`).digest('hex');
+        // const checkB = crypto.createHash('sha256').update(`${ip}-${agent}`).digest('hex');
+        // if( checkA === checkB ){
+        //   return reject({
+        //     code: 403,
+        //     message: 'Invalid Agent.'
+        //   });
+        // }
         const storeToken = await getStoreToken(data);
         if( storeToken !== refreshToken ){
           return reject({
@@ -156,10 +222,54 @@ export const verifyRefreshToken = async ({ refreshToken, ip, agent }) => {
   });
 }
 
-export const clearToken = async ({ accessToken, refreshToken }) => {
+export const clearToken = async ({ accessToken }) => {
   const decoded = jwt.decode(accessToken);
-  console.log(decoded);
   return delStoreToken(decoded);
+}
+
+export const getUserSessionKey = ({ sub, platform }) => {
+  const redisKey = `SESSION:USER:${sub}:${platform}`;
+  return redisKey.toUpperCase();
+}
+export const getUserSession = async ( data ) => {
+  const redisKey = getUserSessionKey(data);
+  let redisData = await client.GET(redisKey);
+  if( redisData?.length > 0 ) {
+    try {
+      return JSON.parse(redisData);
+    } catch ( e ){
+      console.error(e);
+    }
+  }
+  return null;
+}
+export const addUserSession = async ( data ) => {
+  const redisKey = getUserSessionKey(data);
+  const ttl = getAccessTokenTTL();
+  await client.SETEX(redisKey, ttl, JSON.stringify(data));
+}
+export const delUserSession = async ( data ) => {
+  const redisKey = getUserSessionKey(data);
+  return await client.DEL(redisKey);
+}
+
+export const logout = async ({
+  accessToken,
+  ip,
+  agent,
+  platform,
+}) => {
+  // 토큰 검증
+  const data = await verifyAccessToken({
+    accessToken,
+    ip,
+    agent,
+    platform,
+  });
+  // 토큰 삭제
+  await delStoreToken(data);
+  // 세션 삭제
+  await delUserSession(data);
 }
 
 export default {
@@ -168,4 +278,7 @@ export default {
   verifyAccessToken,
   verifyRefreshToken,
   clearToken,
+
+  logout,
+  addUserSession,
 }

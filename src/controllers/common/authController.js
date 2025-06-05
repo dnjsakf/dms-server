@@ -31,12 +31,34 @@ export const getRegister = async (req, res) => {
 
 export const postLogin = async (req, res) => {
   try {
-    const result = await AuthService.authenticate({
-      ...req.body,
+    const {
+      code,
+      data,
+      message
+    } = await AuthService.authenticate({
+      loginId: req.body.loginId,
+      loginPwd: req.body.loginPwd,
       ip: req.userIp,
       agent: req.userAgent,
+      platform: req.headers['platform'],
     });
-    res.json(result);
+
+    res.cookie("refreshToken", data.refreshToken, {
+      httpOnly: true,  // 클라이언트에서 접근 불가 (XSS 공격 방지)
+      // secure: true,    // HTTPS에서만 전송
+      // sameSite: "Strict", // CSRF 공격 방지
+      secure: false,
+      sameSite: "Lax", // 크로스 도메인 요청 허용
+      // maxAge: 7 * 24 * 60 * 60 * 1000 // 7일 유지
+    });
+
+    res.json({
+      code,
+      data: {
+        accessToken: data.accessToken,
+      },
+      message
+    });
   } catch ( error ) {
     res.status(500).json({
       code: 500,
@@ -67,9 +89,12 @@ export const postRegister = async (req, res) => {
 
 export const postLogout = async (req, res) => {
   try {
-    // 로그아웃 시, 토큰 삭제
-    await AuthService.clearToken({
+    // 로그아웃 시, 토큰/세션 삭제
+    await AuthService.logout({
       accessToken: req.accessToken,
+      ip: req.userIp,
+      agent: req.userAgent,
+      platform: req.headers['platform'],
     });
     res.status(200).json({
       code: 200,
@@ -112,9 +137,10 @@ export const postVerifyToken = async (req, res) => {
       data,
       message,
     } = await AuthService.verifyToken({
-      ...req.body,
+      accessToken: req.accessToken,
       ip: req.userIp,
       agent: req.userAgent,
+      platform: req.headers['platform'],
     });
     res.status(200).json({
       code: 200,
@@ -139,9 +165,10 @@ export const postToken = async(req, res) => {
       data,
       message
     } = await AuthService.generateToken({
-      ...req.body,
+      represhToken: req.cookies.represhToken,
       ip: req.userIp,
       agent: req.userAgent,
+      platform: req.headers['platform'],
     });
     res.status(200).json({
       code: 200,

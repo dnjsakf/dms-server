@@ -30,9 +30,11 @@ export const getDataList = async ( params ) => {
   }
 }
 
-export const getDataDetail = async ( params ) => {
+export const getDataDetail = async ({
+  userId
+}) => {
   try {
-    const detail = await CommUserModel.findByPk(params.userId, {
+    const detail = await CommUserModel.findByPk(userId, {
       attributes: [
         'userId',
         'loginId',
@@ -50,12 +52,12 @@ export const getDataDetail = async ( params ) => {
   }
 }
 
-export const getDataLogin = async ( params ) => {
+export const getDataLogin = async ({ loginId }) => {
   try {
     const data = await CommUserModel.findOne({
       where: {
         loginId: {
-          [sequelize.Op.eq]: params?.loginId,
+          [sequelize.Op.eq]: loginId,
         }
       }
     });
