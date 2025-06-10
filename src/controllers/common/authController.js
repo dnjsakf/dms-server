@@ -29,35 +29,65 @@ export const getRegister = async (req, res) => {
   }
 }
 
+/**
+ * 로그인 처리
+ * - 로그인 정보 유효성 검사
+ * - 로그인 성공 시, 토큰 발행
+ * - 토큰 발행 성공 시, 쿠키에 저장
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const postLogin = async (req, res) => {
   try {
-    const {
-      code,
-      data,
-      message
-    } = await AuthService.authenticate({
-      loginId: req.body.loginId,
-      loginPwd: req.body.loginPwd,
-      ip: req.userIp,
-      agent: req.userAgent,
-      platform: req.headers['platform'],
-    });
+    // 1. 로그인 정보 유효성 검사
+    const accepted = await AuthService.authenticate(req.body.loginId, req.body.loginPwd, req.data);
+    if( accepted.code != 200 ){
+      throw new Error(accepted.message);
+    }
 
-    res.cookie("refreshToken", data.refreshToken, {
-      httpOnly: true,  // 클라이언트에서 접근 불가 (XSS 공격 방지)
-      // secure: true,    // HTTPS에서만 전송
-      // sameSite: "Strict", // CSRF 공격 방지
-      secure: false,
-      sameSite: "Lax", // 크로스 도메인 요청 허용
-      // maxAge: 7 * 24 * 60 * 60 * 1000 // 7일 유지
-    });
+    // 2. 로그인 성공 시, 토큰 발행
+    const resToken = await AuthService.createToken(accepted.data);
+    if( resToken.code != 200 ){
+      throw new Error(resToken.message);
+    }
 
-    res.json({
-      code,
+    // 3. 토큰 발행 성공 시, 쿠키에 저장
+    addTokenCookies(res, resToken.data);
+
+    // 4. 로그인 정상 처리
+    res.status(200).json({
+      code: 200,
       data: {
-        accessToken: data.accessToken,
+        loggedIn: true,
       },
-      message
+      message: 'Success'
+    });
+  } catch ( error ) {
+    // 로그인 실패 시, 에러 메시지 반환
+    res.status(500).json({
+      code: 500,
+      data: null,
+      message: error.message
+    });
+  }
+}
+
+/**
+ * 로그아웃 처리
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const postLogout = async (req, res) => {
+  try {
+    // 1. 로그아웃 시, REDIS 토큰/세션 삭제
+    await AuthService.clearSession(req.data);
+
+    clearTokenCookies(res);
+
+    res.status(200).json({
+      code: 200,
+      data: null,
+      message: "Success",
     });
   } catch ( error ) {
     res.status(500).json({
@@ -68,6 +98,49 @@ export const postLogin = async (req, res) => {
   }
 }
 
+/**
+ * 로그인 ID 중복 검사
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const postCheckDuplicate = async (req, res) => {
+  try {
+    // 1. 요청 데이터 유효성 검사
+    const user = CommUserModel.build({
+      loginId: req.body.loginId,
+    }).toJSON();
+
+    // 2. 로그인 ID 중복 검사
+    const {
+      code,
+      data,
+      message,
+    } = await AuthService.checkDuplicate(user.loginId);
+    if( code != 200 ){
+      throw new Error(message)
+    }
+
+    // 3. 중복 검사 결과 반환
+    res.status(200).json({
+      code: 200,
+      data: data.duplicated,
+      message: "Success",
+    });
+  } catch ( error ){
+    // 3. 오류 발생 시, 에러 메시지 반환
+    res.status(500).json({
+      code: 500,
+      data: null,
+      message: error.message
+    });
+  }
+}
+
+/**
+ * 회원가입 처리
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const postRegister = async (req, res) => {
   try {
     const newUser = await UserService.createData(req.body);
@@ -87,69 +160,28 @@ export const postRegister = async (req, res) => {
   }
 }
 
-export const postLogout = async (req, res) => {
+/**
+ * 인증 토큰 유효성 검사
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const postTokenVerify = async (req, res) => {
   try {
-    // 로그아웃 시, 토큰/세션 삭제
-    await AuthService.logout({
-      accessToken: req.accessToken,
-      ip: req.userIp,
-      agent: req.userAgent,
-      platform: req.headers['platform'],
-    });
-    res.status(200).json({
-      code: 200,
-      data: null,
-      message: "Success",
-    });
-  } catch ( error ) {
-    res.status(500).json({
-      code: 500,
-      data: null,
-      message: error.message
-    });
-  }
-}
-
-export const postCheckDuplicate = async (req, res) => {
-  try {
-    const user = CommUserModel.build({
-      loginId: req.body.loginId,
-    }).toJSON();
-    const duplicated = await AuthService.checkDuplicate(user);
-    res.status(200).json({
-      code: 200,
-      data: duplicated,
-      message: "Success",
-    });
-  } catch ( error ){
-    res.status(500).json({
-      code: 500,
-      data: null,
-      message: error.message
-    });
-  }
-}
-
-export const postVerifyToken = async (req, res) => {
-  try {
-    const {
-      verify,
-      data,
-      message,
-    } = await AuthService.verifyToken({
-      accessToken: req.accessToken,
-      ip: req.userIp,
-      agent: req.userAgent,
-      platform: req.headers['platform'],
-    });
+    // 1. 인증 토큰 검증
+    const verified = await AuthService.verifyAccessToken(req.data);
+    if( verified.code != 200 ){
+      throw new Error(verified.message);
+    }
+    // 2. 정상 응답
     res.status(200).json({
       code: 200,
       data: {
-        verify,
+        verify: true,
       },
-      message: message,
+      message: 'Success',
     });
   } catch ( error ) {
+    // 오류 응답
     res.status(500).json({
       code: 500,
       data: null,
@@ -158,38 +190,104 @@ export const postVerifyToken = async (req, res) => {
   }
 }
 
-export const postToken = async(req, res) => {
+/**
+ * 토큰 재발급 처리
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const postTokenRefresh = async(req, res) => {
   try {
-    const {
-      verify,
-      data,
-      message
-    } = await AuthService.generateToken({
-      represhToken: req.cookies.represhToken,
-      ip: req.userIp,
-      agent: req.userAgent,
-      platform: req.headers['platform'],
-    });
+    // 1. 리프레시 토큰 검증
+    const verified = await AuthService.verifyRefreshToken(req.data);
+    if( verified.code != 200 ){
+      throw new Error(verified.message);
+    }
+
+    // 2. 로그인 성공 시, 토큰 발행
+    const resToken = await AuthService.createToken(verified.data.decoded);
+    if( resToken.code != 200 ){
+      throw new Error(resToken.message);
+    }
+
+    // 3. 토큰 발행 성공 시, 쿠키에 저장
+    addTokenCookies(res, resToken.data);
+
+    // 4. 정상 응답
     res.status(200).json({
       code: 200,
-      data: data,
-      message: message,
+      data: null,
+      message: "Refresh Tokens",
     });
   } catch ( error ) {
+    // 오류 응답
     res.status(500).json({
       code: 500,
       data: null,
       message: error.message
     });
   }
+}
+
+const addTokenCookies = (res, data) => {
+  const cookieOptions = {
+    ...(
+      process.env.NODE_ENV === 'production' ? {
+        sameSite: "None",
+        secure: true, // HTTPS에서만 전송가능
+      } : {
+        sameSite: "lax", // 크로스 도메인 요청 허용
+        secure: false, // 개발 환경에서는 false로 설정
+      }
+    ),
+    httpOnly: true,  // 클라이언트에서 접근 불가 (XSS 공격 방지)
+    path: '/', // 쿠키가 유효한 경로, 모든 경로에서 유효하도록 설정
+  }
+
+  // 초기값 전달용 토큰
+  res.cookie("payloadToken", data.payloadToken, {
+    ...cookieOptions,
+    maxAge: 1 * 60 * 60 * 1000, // 1시간 유지
+    httpOnly: false,
+  });
+  // 인증 토큰
+  res.cookie("accessToken", data.accessToken, {
+    ...cookieOptions,
+    maxAge: 1 * 60 * 60 * 1000 // 1시간 유지
+  });
+  // 리프레시 토큰
+  res.cookie("refreshToken", data.refreshToken, {
+    ...cookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7일 유지
+  });
+}
+
+const clearTokenCookies = (res) => {
+  const cookieOptions = {
+    ...(
+      process.env.NODE_ENV === 'production' ? {
+        sameSite: "None",
+        secure: true, // HTTPS에서만 전송가능
+      } : {
+        sameSite: "lax", // 크로스 도메인 요청 허용
+        secure: false, // 개발 환경에서는 false로 설정
+      }
+    ),
+    httpOnly: true,  // 클라이언트에서 접근 불가 (XSS 공격 방지)
+    path: '/', // 쿠키가 유효한 경로, 모든 경로에서 유효하도록 설정
+  }
+
+  res.clearCookie('accessToken', { ...cookieOptions });
+  res.clearCookie('refreshToken', { ...cookieOptions });
+  res.clearCookie('payloadToken', { ...cookieOptions, httpOnly: false });
 }
 
 export default {
   getRegister,
   getLogin,
   postLogin,
-  postToken,
-  postVerifyToken,
+  postTokenRefresh,
+  postTokenVerify,
   postRegister,
   postLogout,
+  postCheckDuplicate,
 };

@@ -1,284 +1,79 @@
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { client } from '../config/redisConfig';
 import { loadEnv } from './envUtil';
 
 loadEnv();
 
-const JWT_STORE_PREFIX = "SESSION:TOKEN";
 const JWT_ACCESS_SECRET_KEY = process.env.JWT_ACCESS_SECRET_KEY;
 const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
+const JWT_PAYLOAD_SECRET_KEY = process.env.JWT_PAYLOAD_SECRET_KEY;
 
 /**
- * ip랑 agent로 세션 토큰 키 생성
- * -> platform 으로 토큰 키 생성
- * @param {*} data 
+ * 토큰 관련 상수
+ */
+export const TOKEN_TYPE = {
+  ACCESS_TOKEN: 'accessToken',
+  REFRESH_TOKEN: 'refreshToken',
+  PAYLOAD_TOKEN: 'payloadToken',
+  ACCESS_EXPIRED_IN: '5m',
+  REFRESH_EXPIRED_IN: '7d',
+  PAYLOAD_EXPIRED_IN: '5m',
+}
+
+/**
+ * accessToken 생성, 인증에 필요한 최소 데이터만 저장
+ * @param {*} tokenData 인즈 토큰에 포함할 데이터, EX: { sub: 'ANONYMOUS', platform: 'DESKTOP' }
+ * @param {*} expiresIn default: 5분
  * @returns 
  */
-const generateUniqueKey = (data) => {
-  // const hashed = crypto.createHash('sha256').update(`${data.ip}-${data.agent}`).digest('hex');
-  // const redisKey = `${JWT_STORE_PREFIX}:${data.userId}:${hashed}`
-  // return redisKey;
-  // const hashed = crypto.createHash('sha256').update(`${data.ip}-${data.agent}`).digest('hex');
-  const redisKey = `${JWT_STORE_PREFIX}:${data.sub}:${data.platform}`;
-  return redisKey.toUpperCase();
+export const generateAccessToken = ({ sub, platform }, expiresIn=TOKEN_TYPE.ACCESS_EXPIRED_IN) => {
+  return jwt.sign({ sub, platform }, JWT_ACCESS_SECRET_KEY, { expiresIn: expiresIn || (5 * 60) });
 }
-
 /**
- * accessToken 유효 시간
+ * refreshToken 생성, 인증에 필요한 최소 데이터만 저장
+ * @param {*} tokenData 리프레시 토큰에 포함할 데이터, EX: { sub: 'ANONYMOUS', platform: 'DESKTOP' }
+ * @param {*} expiresIn default: 7일
  * @returns 
  */
-const getAccessTokenTTL = () => {
-  const ttl = 5 * 60; // 5분 (초 단위)
-  return ttl;
+export const generateRefreshToken = ({ sub, platform }, expiresIn=TOKEN_TYPE.REFRESH_EXPIRED_IN) => {
+  return jwt.sign({ sub, platform }, JWT_REFRESH_SECRET_KEY, { expiresIn: expiresIn || (7 * 24 * 60 * 60) });
 }
-
 /**
- * refreshToken 유효 시간
+ * payloadToken 생성, 로그인 후 Client에 전송 할 데이터 저장
+ * - 만료시간은 AccessToken과 동일하게 설정
+ * @param {*} tokenData 페이로드 토큰에 포함할 데이터, EX: { username: 'Admin', roles: ['ADMIN', 'USER'], platform: 'DESKTOP' }
+ * @param {*} expiresIn default: AccessToken 값
  * @returns 
  */
-const getRefreshTokenTTL = () => {
-  const ttl = 7 * 24 * 60 * 60; // 7일 (초 단위)
-  return ttl;
-}
-
-/**
- * REDIS에 Refresh Token 저장
- * @param {*} data 
- * @param {*} token 
- */
-export const setStoreToken = ( data, token ) => {
-  const ttl = getRefreshTokenTTL();
-  client.SETEX(generateUniqueKey(data), ttl, token);
-}
-
-/**
- * REDIS에 Refresh Token 저장
- * @param {*} data 
- * @param {*} token 
- */
-export const getStoreToken = ( data ) => {
-  return client.GET(generateUniqueKey(data));
-}
-
-/**
- * REDIS에 저장된 토큰 삭제
- */
-export const delStoreToken = ( data ) => {
-  return client.DEL(generateUniqueKey(data));
-}
-
-/**
- * accessToken 생성
- * @param {*} data 
- * @returns 
- */
-export const generateAccessToken = ({
-  sub,
-  platform
-}) => {
-  const tokenData = {
-    sub,
-    platform,
+export const generatePayloadToken = (tokenData, expiresIn=TOKEN_TYPE.PAYLOAD_EXPIRED_IN) => {
+  const opts = { expiresIn }
+  const data = { ...tokenData }
+  if( typeof expiresIn == 'number' ){
+    data.exp = expiresIn;
   }
-  const ttl = getAccessTokenTTL();
-  const accessToken = jwt.sign(tokenData, JWT_ACCESS_SECRET_KEY, { expiresIn: ttl ||'30m' });;
-  setStoreToken(tokenData, accessToken);
-  return accessToken;
-}
-
-/**
- * refreshToken 생성
- * @param {*} data 
- * @returns 
- */
-export const generateRefreshToken = ({
-  sub,
-  platform
-}) => {
-  const tokenData = {
-    sub,
-    platform,
+  if ( data.hasOwnProperty('exp') ){
+    delete opts.expiresIn;
   }
-  const ttl = getRefreshTokenTTL();
-  const refreshToken = jwt.sign(tokenData, JWT_REFRESH_SECRET_KEY, { expiresIn: ttl || '7d' });
-  setStoreToken(tokenData, refreshToken);
-  return refreshToken;
+  return jwt.sign(data, JWT_PAYLOAD_SECRET_KEY, opts);
 }
 
-/**
- * accessToken 유효성 검사
- * @param {*} param0 
- * @returns 
- */
-export const verifyAccessToken = async ({
-  accessToken,
-  ip,
-  agent,
-  platform
-}) => {
-  return new Promise((resolve, reject) => {
-    if( !accessToken ){
-      return reject('Token is required');
-    }
-    jwt.verify(accessToken, JWT_ACCESS_SECRET_KEY, async (err, data) => {
-      if( err ){
-        console.error(err);
-        return reject('Invalid or expired token');
-      }
-      const redisData = await getUserSession({
-        ...data,
-        platform
-      });
-      if( !redisData ){
-        return reject('Invalid Token.');
-      }
-      if( redisData.platform != platform ){
-        return reject('Invalid Platform.');
-      }
-      if( redisData.ip != ip ){
-        return reject('Invalid IP Addres.');
-      }
-      if( redisData.agent != agent ){
-        return reject('Invalid Agent.');
-      }
-      // const checkA = crypto.createHash('sha256').update(`${redisData.ip}-${redisData.agent}`).digest('hex');
-      // const checkB = crypto.createHash('sha256').update(`${ip}-${agent}`).digest('hex');
-      // if( checkA !== checkB ){
-      //   return reject('Invalid Agent.');
-      // }
-      return resolve(redisData);
-    });
-  });
-}
-
-/**
- * refreshToken 유효성 검사 및 accessToken 재발급
- * @param {*} param0 
- * @returns 
- */
-export const verifyRefreshToken = async ({
-  refreshToken,
-  ip,
-  agent,
-  platform
-}) => {
-  return new Promise((resolve, reject) => {
-    if( !refreshToken ){
-      return reject({
-        code: 400,
-        message: 'Refresh token is required',
-      });
-    }
-    jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY, async (err, data) => {
-      if( err ){
-        console.error(err);
-        return reject({
-          code: 403,
-          message: 'Invalid or expired refresh token.',
-        });
-      }
-      const redisData = await getUserSession({
-        ...data,
-        platform
-      });
-      try {
-        if( !redisData ){
-          return reject('Invalid Token.');
-        }
-        if( redisData.platform != platform ){
-          return reject('Invalid Platform.');
-        }
-        if( redisData.ip != ip ){
-          return reject('Invalid IP Addres.');
-        }
-        if( redisData.agent != agent ){
-          return reject('Invalid Agent.');
-        }
-        // const checkA = crypto.createHash('sha256').update(`${redisData.ip}-${redisData.agent}`).digest('hex');
-        // const checkB = crypto.createHash('sha256').update(`${ip}-${agent}`).digest('hex');
-        // if( checkA === checkB ){
-        //   return reject({
-        //     code: 403,
-        //     message: 'Invalid Agent.'
-        //   });
-        // }
-        const storeToken = await getStoreToken(data);
-        if( storeToken !== refreshToken ){
-          return reject({
-            code: 403,
-            message: 'Invalid refresh token.'
-          });
-        }
-        delete data.exp; // 만료시간
-        delete data.iat; // 시작시간
-
-        const accessToken = generateAccessToken(data);
-        return resolve(accessToken);
-      } catch ( error ){
-        return reject(error);
-      }
-    });
-  });
-}
-
-export const clearToken = async ({ accessToken }) => {
-  const decoded = jwt.decode(accessToken);
-  return delStoreToken(decoded);
-}
-
-export const getUserSessionKey = ({ sub, platform }) => {
-  const redisKey = `SESSION:USER:${sub}:${platform}`;
-  return redisKey.toUpperCase();
-}
-export const getUserSession = async ( data ) => {
-  const redisKey = getUserSessionKey(data);
-  let redisData = await client.GET(redisKey);
-  if( redisData?.length > 0 ) {
-    try {
-      return JSON.parse(redisData);
-    } catch ( e ){
-      console.error(e);
-    }
+export const verify = ( type, token ) => {
+  switch( type ){
+    case TOKEN_TYPE.ACCESS_TOKEN: return jwt.verify(token, JWT_ACCESS_SECRET_KEY);
+    case TOKEN_TYPE.REFRESH_TOKEN: return jwt.verify(token, JWT_REFRESH_SECRET_KEY);
+    case TOKEN_TYPE.PAYLOAD_TOKEN: return jwt.verify(token, JWT_PAYLOAD_SECRET_KEY);
+    default: return jwt.verify(token, JWT_ACCESS_SECRET_KEY);
   }
-  return null;
-}
-export const addUserSession = async ( data ) => {
-  const redisKey = getUserSessionKey(data);
-  const ttl = getAccessTokenTTL();
-  await client.SETEX(redisKey, ttl, JSON.stringify(data));
-}
-export const delUserSession = async ( data ) => {
-  const redisKey = getUserSessionKey(data);
-  return await client.DEL(redisKey);
 }
 
-export const logout = async ({
-  accessToken,
-  ip,
-  agent,
-  platform,
-}) => {
-  // 토큰 검증
-  const data = await verifyAccessToken({
-    accessToken,
-    ip,
-    agent,
-    platform,
-  });
-  // 토큰 삭제
-  await delStoreToken(data);
-  // 세션 삭제
-  await delUserSession(data);
+export const decode = ( token, opt ) => {
+  return jwt.decode(token, opt);
 }
 
 export default {
+  generatePayloadToken,
   generateAccessToken,
   generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-  clearToken,
 
-  logout,
-  addUserSession,
+  verify,
+  decode,
 }

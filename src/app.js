@@ -3,6 +3,7 @@ import 'module-alias/register';
 import path from 'path';
 import express from 'express';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import { createHandler } from 'graphql-http/lib/use/express';
@@ -39,15 +40,13 @@ const app = express();
 app.use(express.static(getPath('public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// 쿠키 미들웨어
+app.use(cookieParser());
 
 // CORS 
 app.use(cors({
-  // origin: 'http://localhost:4001', // 요청을 허용할 출처
-  origin: [
-    "http://localhost:4000",
-    "http://localhost:4001"
-  ],
-  credentials: true
+  origin: 'http://localhost:4001', // 요청을 허용할 출처
+  credentials: true // 쿠키 자동 포함
 }));
 
 // Redis Session Setting
