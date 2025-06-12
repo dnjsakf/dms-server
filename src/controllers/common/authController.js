@@ -41,14 +41,22 @@ export const postLogin = async (req, res) => {
   try {
     // 1. 로그인 정보 유효성 검사
     const accepted = await AuthService.authenticate(req.body.loginId, req.body.loginPwd, req.data);
-    if( accepted.code != 200 ){
-      throw new Error(accepted.message);
+    if( accepted.code !== 200 ){
+      return res.status(accepted.code).json({
+        code: accepted.code,
+        data: null,
+        message: accepted.message,
+      });
     }
 
     // 2. 로그인 성공 시, 토큰 발행
     const resToken = await AuthService.createToken(accepted.data);
-    if( resToken.code != 200 ){
-      throw new Error(resToken.message);
+    if( resToken.code !== 200 ){
+      return res.status(resToken.code).json({
+        code: resToken.code,
+        data: null,
+        message: resToken.message,
+      });
     }
 
     // 3. 토큰 발행 성공 시, 쿠키에 저장
@@ -111,19 +119,21 @@ export const postCheckDuplicate = async (req, res) => {
     }).toJSON();
 
     // 2. 로그인 ID 중복 검사
-    const {
-      code,
-      data,
-      message,
-    } = await AuthService.checkDuplicate(user.loginId);
-    if( code != 200 ){
-      throw new Error(message)
+    const resDup = await AuthService.checkDuplicate(user.loginId);
+    if( resDup.code !== 200 ){
+      return res.status(resDup.code).json({
+        code: resDup.code,
+        data: null,
+        message: resDup.message,
+      });
     }
 
     // 3. 중복 검사 결과 반환
     res.status(200).json({
       code: 200,
-      data: data.duplicated,
+      data: {
+        duplicated: !!resDup.data?.duplicated,
+      },
       message: "Success",
     });
   } catch ( error ){
@@ -169,7 +179,7 @@ export const postTokenVerify = async (req, res) => {
   try {
     // 1. 인증 토큰 검증
     const verified = await AuthService.verifyAccessToken(req.data);
-    if( verified.code != 200 ){
+    if( verified.code !== 200 ){
       throw new Error(verified.message);
     }
     // 2. 정상 응답
@@ -199,13 +209,13 @@ export const postTokenRefresh = async(req, res) => {
   try {
     // 1. 리프레시 토큰 검증
     const verified = await AuthService.verifyRefreshToken(req.data);
-    if( verified.code != 200 ){
+    if( verified.code !== 200 ){
       throw new Error(verified.message);
     }
 
     // 2. 로그인 성공 시, 토큰 발행
     const resToken = await AuthService.createToken(verified.data.decoded);
-    if( resToken.code != 200 ){
+    if( resToken.code !== 200 ){
       throw new Error(resToken.message);
     }
 

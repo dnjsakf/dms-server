@@ -17,9 +17,7 @@ export const getIndex = async (req, res) => {
 
 export const getInitData = async (req, res) => {
   try {
-    const initData = await CommonService.getInitData({
-      ...req.user,
-    });
+    const initData = await CommonService.getInitData(req.data.user);
     res.status(200).json({
       code: 200,
       data: initData,

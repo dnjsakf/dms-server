@@ -2,8 +2,8 @@ import jwtUtil, { TOKEN_TYPE } from "../utils/jwtUtil";
 import AuthService from "../services/common/authService";
 
 const whitelist = [
-  '/auth'
-]
+  '/init'
+];
 
 const authMiddleware = async (req, res, next) => {
   // const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -37,14 +37,19 @@ const authMiddleware = async (req, res, next) => {
   req.refreshToken = refreshToken;
   req.payloadToken = payloadToken;
 
-  // 0. 특정 경로로 들어오는 요청은 인증을 생략
-  for(let i = 0; i < whitelist.length; i++) {
-    if (req.path?.startsWith(whitelist[i])) {
-      return next();
-    }
+  // 0. /auth를 통해 들어오는 요청은 인증이므로 패스
+  if (req.path?.startsWith('/auth')) {
+    return next();
   }
+
   // 1. 인증 토큰이 없으면, 인증 실패
   if( !accessToken ){
+    // 1-1. 특정 경로로 들어오는 요청은 토큰이 없어도 통과
+    for(let i = 0; i < whitelist.length; i++) {
+      if (req.path?.startsWith(whitelist[i])) {
+        return next();
+      }
+    }
     return res.status(401).json({
       code: 401,
       data: null,
