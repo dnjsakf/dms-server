@@ -1,6 +1,6 @@
 import { getPath } from '../../utils/pathUtil';
 
-import CommonService from '../../services/common/commonService';
+import CommonService from '../../services/common/CommonService';
 
 export const getIndex = async (req, res) => {
   try {

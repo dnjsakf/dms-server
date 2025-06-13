@@ -1,10 +1,36 @@
-import PermissionService from '../../services/common/permissionService';
+import CodeItemService from '../../services/common/CodeItemService';
 
 export const getDataList = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const list = await PermissionService.getDataList(req.query);
+      const list = await CodeItemService.getDataList(req.query);
+      res.json({
+        code: 200,
+        data: list,
+        message: 'Success',
+      });
+    } else {
+      res.json({
+        code: 400,
+        data: null,
+        message: 'Invalid Request Data.',
+      });
+    }
+  } catch ( error ) {
+    res.status(500).json({
+      code: 500,
+      data: null,
+      message: error.message
+    });
+  }
+}
+
+export const getDataPage = async ( req, res ) => {
+  try {
+    const params = req.query||{};
+    if( params ) {
+      const list = await CodeItemService.getDataPage(req.query);
       res.json({
         code: 200,
         data: list,
@@ -30,7 +56,7 @@ export const getDataDetail = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const detail = await PermissionService.getDataDetail(req.query);
+      const detail = await CodeItemService.getDataDetail(req.query);
       res.json({
         code: 200,
         data: detail,
@@ -56,7 +82,7 @@ export const createData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await PermissionService.createData(data);
+      const result = await CodeItemService.createData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -82,7 +108,7 @@ export const updateData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await PermissionService.updateData(data);
+      const result = await CodeItemService.updateData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -108,7 +134,7 @@ export const deleteData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await PermissionService.deleteData(data);
+      const result = await CodeItemService.deleteData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -134,7 +160,7 @@ export const deleteAllData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await PermissionService.deleteAllData(data);
+      const result = await CodeItemService.deleteAllData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -158,6 +184,7 @@ export const deleteAllData = async ( req, res ) => {
 
 export default {
   getDataList,
+  getDataPage,
   getDataDetail,
   createData,
   updateData,

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import BaseModel from '../baseModel';
 
-import mobinogiService from '../../services/mobinogi/mobinogiService';
+import mobinogiService from '../../services/mobinogi/MobinogiService';
 
 class MbRuneMstModel extends BaseModel {
   async onCreate(){

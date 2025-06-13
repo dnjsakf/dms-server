@@ -1,10 +1,10 @@
-import JobScheduleService from '../../services/batch/jobScheduleService';
+import JobService from '../../services/batch/JobService';
 
 export const getDataList = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const jobList = await JobScheduleService.getDataList(req.query);
+      const jobList = await JobService.getDataList(req.query);
       res.json({
         code: 200,
         data: jobList,
@@ -30,7 +30,7 @@ export const getDataDetail = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const jobList = await JobScheduleService.getDataDetail(req.query);
+      const jobList = await JobService.getDataDetail(req.query);
       res.json({
         code: 200,
         data: jobList,
@@ -56,7 +56,7 @@ export const createData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobScheduleService.createData(data);
+      const result = await JobService.createData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -82,7 +82,7 @@ export const updateData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobScheduleService.updateData(data);
+      const result = await JobService.updateData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -108,7 +108,7 @@ export const deleteData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobScheduleService.deleteData(data);
+      const result = await JobService.deleteData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -134,7 +134,7 @@ export const deleteAllData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobScheduleService.deleteAllData(data);
+      const result = await JobService.deleteAllData(data);
       res.status(200).json({
         code: 200,
         data: result,

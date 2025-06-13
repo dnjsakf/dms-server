@@ -1,4 +1,4 @@
-import runeService from '../../services/mobinogi/runeService';
+import runeService from '../../services/mobinogi/RuneService';
 
 export const getDataList = async ( req, res ) => {
   try {

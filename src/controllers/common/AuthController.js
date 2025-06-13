@@ -1,7 +1,7 @@
 import { getPath } from '../../utils/pathUtil';
 
-import AuthService from '../../services/common/authService';
-import UserService from '../../services/common/userService';
+import AuthService from '../../services/common/AuthService';
+import UserService from '../../services/common/UserService';
 
 import CommUserModel from '../../models/common/commUserModel';
 

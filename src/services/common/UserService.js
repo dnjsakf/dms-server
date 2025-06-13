@@ -1,6 +1,6 @@
 import sequelize from 'sequelize';
 import { getTransaction } from '../../config/dbConfig';
-import roleService from './roleService';
+import roleService from './RoleService';
 import CommUserModel from '../../models/common/commUserModel';
 import CommUserRoleModel from '../../models/common/commUserRoleModel';
 

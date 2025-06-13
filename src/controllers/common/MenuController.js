@@ -1,4 +1,4 @@
-import MenuService from '../../services/common/menuService';
+import MenuService from '../../services/common/MenuService';
 
 export const getDataList = async ( req, res ) => {
   try {

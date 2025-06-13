@@ -7,7 +7,7 @@ import {
   updateData,
   deleteData,
   deleteAllData,
-} from '../../controllers/common/menuController';
+} from '../../controllers/common/MenuController';
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import {
   getDataList,
-} from '../../controllers/mobinogi/mobinogiController';
+} from '../../controllers/mobinogi/MobinogiController';
 
 const router = express.Router();
 

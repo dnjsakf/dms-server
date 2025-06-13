@@ -6,7 +6,7 @@ import {
   updateData,
   deleteData,
   deleteAllData,
-} from '../../controllers/common/groupController';
+} from '../../controllers/common/GroupController';
 
 const router = express.Router();
 

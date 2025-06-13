@@ -1,39 +1,13 @@
-import CodeItemService from '../../services/common/codeItemService';
+import JobScheduleService from '../../services/batch/JobScheduleService';
 
 export const getDataList = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const list = await CodeItemService.getDataList(req.query);
+      const jobList = await JobScheduleService.getDataList(req.query);
       res.json({
         code: 200,
-        data: list,
-        message: 'Success',
-      });
-    } else {
-      res.json({
-        code: 400,
-        data: null,
-        message: 'Invalid Request Data.',
-      });
-    }
-  } catch ( error ) {
-    res.status(500).json({
-      code: 500,
-      data: null,
-      message: error.message
-    });
-  }
-}
-
-export const getDataPage = async ( req, res ) => {
-  try {
-    const params = req.query||{};
-    if( params ) {
-      const list = await CodeItemService.getDataPage(req.query);
-      res.json({
-        code: 200,
-        data: list,
+        data: jobList,
         message: 'Success',
       });
     } else {
@@ -56,10 +30,10 @@ export const getDataDetail = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const detail = await CodeItemService.getDataDetail(req.query);
+      const jobList = await JobScheduleService.getDataDetail(req.query);
       res.json({
         code: 200,
-        data: detail,
+        data: jobList,
         message: 'Success',
       });
     } else {
@@ -82,7 +56,7 @@ export const createData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await CodeItemService.createData(data);
+      const result = await JobScheduleService.createData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -108,7 +82,7 @@ export const updateData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await CodeItemService.updateData(data);
+      const result = await JobScheduleService.updateData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -134,7 +108,7 @@ export const deleteData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await CodeItemService.deleteData(data);
+      const result = await JobScheduleService.deleteData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -160,7 +134,7 @@ export const deleteAllData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await CodeItemService.deleteAllData(data);
+      const result = await JobScheduleService.deleteAllData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -184,7 +158,6 @@ export const deleteAllData = async ( req, res ) => {
 
 export default {
   getDataList,
-  getDataPage,
   getDataDetail,
   createData,
   updateData,

@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwtUtil, { TOKEN_TYPE } from '../../utils/jwtUtil';
 import { equalsEncrypt, decrypt } from '../../utils/cryptoUtil';
 import redisUtil from '../../utils/redisUtil';
-import UserService from './userService';
+import UserService from './UserService';
 
 /**
  * 로그인 ID 중복 검사

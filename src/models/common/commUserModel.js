@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import BaseModel from '../baseModel';
-import commonService from '../../services/common/commonService';
+import commonService from '../../services/common/CommonService';
 
 class CommUserModel extends BaseModel {
   async onCreate(){

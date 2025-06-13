@@ -6,7 +6,7 @@ import {
   updateData,
   deleteData,
   deleteAllData,
-} from '../../controllers/common/permissionController';
+} from '../../controllers/common/PermissionController';
 
 const router = express.Router();
 

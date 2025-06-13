@@ -6,7 +6,7 @@ import {
   updateData,
   deleteData,
   deleteAllData,
-} from '../../controllers/batch/jobController';
+} from '../../controllers/batch/JobController';
 
 const router = express.Router();
 

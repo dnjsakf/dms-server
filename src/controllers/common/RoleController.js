@@ -1,13 +1,13 @@
-import JobService from '../../services/batch/jobService';
+import RoleService from '../../services/common/RoleService';
 
 export const getDataList = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const jobList = await JobService.getDataList(req.query);
+      const list = await RoleService.getDataList(req.query);
       res.json({
         code: 200,
-        data: jobList,
+        data: list,
         message: 'Success',
       });
     } else {
@@ -30,10 +30,10 @@ export const getDataDetail = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const jobList = await JobService.getDataDetail(req.query);
+      const detail = await RoleService.getDataDetail(req.query);
       res.json({
         code: 200,
-        data: jobList,
+        data: detail,
         message: 'Success',
       });
     } else {
@@ -56,7 +56,7 @@ export const createData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobService.createData(data);
+      const result = await RoleService.createData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -82,7 +82,7 @@ export const updateData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobService.updateData(data);
+      const result = await RoleService.updateData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -108,7 +108,7 @@ export const deleteData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobService.deleteData(data);
+      const result = await RoleService.deleteData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -134,7 +134,7 @@ export const deleteAllData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await JobService.deleteAllData(data);
+      const result = await RoleService.deleteAllData(data);
       res.status(200).json({
         code: 200,
         data: result,

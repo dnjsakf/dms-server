@@ -1,4 +1,3 @@
-import MenuService from "../services/common/menuService";
 
 const permissionMiddleware = async (req, res, next) => {
   const path = req.path;

@@ -1,10 +1,10 @@
-import RoleService from '../../services/common/roleService';
+import GroupService from '../../services/common/GroupService';
 
 export const getDataList = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const list = await RoleService.getDataList(req.query);
+      const list = await GroupService.getDataList(req.query);
       res.json({
         code: 200,
         data: list,
@@ -30,7 +30,7 @@ export const getDataDetail = async ( req, res ) => {
   try {
     const params = req.query||{};
     if( params ) {
-      const detail = await RoleService.getDataDetail(req.query);
+      const detail = await GroupService.getDataDetail(req.query);
       res.json({
         code: 200,
         data: detail,
@@ -56,7 +56,7 @@ export const createData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await RoleService.createData(data);
+      const result = await GroupService.createData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -82,7 +82,7 @@ export const updateData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await RoleService.updateData(data);
+      const result = await GroupService.updateData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -108,7 +108,7 @@ export const deleteData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await RoleService.deleteData(data);
+      const result = await GroupService.deleteData(data);
       res.status(200).json({
         code: 200,
         data: result,
@@ -134,7 +134,7 @@ export const deleteAllData = async ( req, res ) => {
   try {
     const data = req.body;
     if( data ){
-      const result = await RoleService.deleteAllData(data);
+      const result = await GroupService.deleteAllData(data);
       res.status(200).json({
         code: 200,
         data: result,

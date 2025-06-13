@@ -1,5 +1,5 @@
 import jwtUtil, { TOKEN_TYPE } from "../utils/jwtUtil";
-import AuthService from "../services/common/authService";
+import AuthService from "../services/common/AuthService";
 
 const whitelist = [
   '/init'

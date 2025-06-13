@@ -1,4 +1,4 @@
-import userService from '../../services/common/userService';
+import userService from '../../services/common/UserService';
 
 const getUsers = async (req, res) => {
   try {
