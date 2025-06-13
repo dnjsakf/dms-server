@@ -1,6 +1,6 @@
 import sequelize from "sequelize";
 
-import BaseModel from "../../models/baseModel";
+import BaseModel from "../../models/BaseModel";
 import MbRuneMstModel from "../../models/mobinogi/MbRuneMstModel";
 
 /**

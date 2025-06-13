@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import BaseModel from '../baseModel';
+import BaseModel from '../BaseModel';
 
 import mobinogiService from '../../services/mobinogi/MobinogiService';
 

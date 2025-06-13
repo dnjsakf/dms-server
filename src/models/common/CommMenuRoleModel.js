@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import BaseModel from '../baseModel';
+import BaseModel from '../BaseModel';
 
 import CommMenuModel from './CommMenuModel';
 import CommRoleModel from './CommRoleModel';

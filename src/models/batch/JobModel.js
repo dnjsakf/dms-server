@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import BaseModel from '../baseModel';
+import BaseModel from '../BaseModel';
 
 class Job extends BaseModel {}
 Job.init({

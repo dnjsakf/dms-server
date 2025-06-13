@@ -1,7 +1,7 @@
 import { QueryTypes } from "sequelize";
 import Sequelize from '../../config/dbConfig';
 
-import BaseModel from "../../models/baseModel";
+import BaseModel from "../../models/BaseModel";
 import CommMenuModel from "../../models/common/CommMenuModel";
 import CommUserModel from "../../models/common/CommUserModel";
 import CommRoleModel from "../../models/common/CommRoleModel";

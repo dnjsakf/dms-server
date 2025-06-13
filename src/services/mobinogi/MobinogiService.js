@@ -1,7 +1,7 @@
 import { QueryTypes } from "sequelize";
 import Sequelize from '../../config/dbConfig';
 
-import BaseModel from "../../models/baseModel";
+import BaseModel from "../../models/BaseModel";
 import MbRuneMstModel from "../../models/mobinogi/MbRuneMstModel";
 
 /**

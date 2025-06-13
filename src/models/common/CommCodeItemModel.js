@@ -1,11 +1,11 @@
 import { DataTypes } from 'sequelize';
-import BaseModel from '../baseModel';
-import commonService from '../../services/common/CommonService';
+import BaseModel from '../BaseModel';
+import CommonService from '../../services/common/CommonService';
 
 class CommCodeItemModel extends BaseModel {
   // async onCreate(){
   //   super.onCreate();
-  //   const id = await commonService.generateId(CommCodeItemModel);
+  //   const id = await CommonService.generateId(CommCodeItemModel);
   //   this.setDataValue('codeItemId', id);
   //   return this;
   // }
