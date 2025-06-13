@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import CommPermissionModel from '../../models/common/commPermissionModel';
+import CommPermissionModel from '../../models/common/CommPermissionModel';
 
 export const getDataList = async ( params ) => {
   try {

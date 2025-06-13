@@ -1,6 +1,6 @@
 import sequelize from 'sequelize';
-import CommRoleModel from '../../models/common/commRoleModel';
-import CommMenuRoleModel from '../../models/common/commMenuRoleModel';
+import CommRoleModel from '../../models/common/CommRoleModel';
+import CommMenuRoleModel from '../../models/common/CommMenuRoleModel';
 
 export const getDataList = async ( params ) => {
   try {

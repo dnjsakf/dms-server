@@ -1,14 +1,14 @@
-const CommPermissionModel = require('../../src/models/common/commPermissionModel').default;
-const CommRoleModel = require('../../src/models/common/commRoleModel').default;
-const CommRolePermissionModel = require('../../src/models/common/commRolePermissionModel').default;
-const CommUserModel = require('../../src/models/common/commUserModel').default;
-const CommUserRoleModel = require('../../src/models/common/commUserRoleModel').default;
-const CommMenuModel = require('../../src/models/common/commMenuModel').default;
-const CommMenuRoleModel = require('../../src/models/common/commMenuRoleModel').default;
-const CommGorupModel = require('../../src/models/common/commGroupModel').default;
-const CommGroupRoleModel = require('../../src/models/common/commGroupRoleModel').default;
-const CommCodeModel = require('../../src/models/common/commCodeModel').default;
-const CommCodeItemModel = require('../../src/models/common/commCodeItemModel').default;
+const CommPermissionModel = require('../../src/models/common/CommPermissionModel').default;
+const CommRoleModel = require('../../src/models/common/CommRoleModel').default;
+const CommRolePermissionModel = require('../../src/models/common/CommRolePermissionModel').default;
+const CommUserModel = require('../../src/models/common/CommUserModel').default;
+const CommUserRoleModel = require('../../src/models/common/CommUserRoleModel').default;
+const CommMenuModel = require('../../src/models/common/CommMenuModel').default;
+const CommMenuRoleModel = require('../../src/models/common/CommMenuRoleModel').default;
+const CommGorupModel = require('../../src/models/common/CommGroupModel').default;
+const CommGroupRoleModel = require('../../src/models/common/CommGroupRoleModel').default;
+const CommCodeModel = require('../../src/models/common/CommCodeModel').default;
+const CommCodeItemModel = require('../../src/models/common/CommCodeItemModel').default;
 
 
 module.exports = {

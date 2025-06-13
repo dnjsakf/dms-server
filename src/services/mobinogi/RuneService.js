@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
 
 import BaseModel from "../../models/baseModel";
-import MbRuneMstModel from "../../models/mobinogi/mbRuneMstModel";
+import MbRuneMstModel from "../../models/mobinogi/MbRuneMstModel";
 
 /**
  * 메뉴 목록 요청 API

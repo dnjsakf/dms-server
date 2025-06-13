@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import BaseModel from '../baseModel';
 
-import CommRoleModel from './commRoleModel';
-import CommPermissionModel from './commPermissionModel';
+import CommRoleModel from './CommRoleModel';
+import CommPermissionModel from './CommPermissionModel';
 
 class CommRolePermissionModel extends BaseModel {}
 CommRolePermissionModel.init({

@@ -1,7 +1,7 @@
 import sequelize from 'sequelize';
 import { getTransaction } from '../../config/dbConfig';
-import CommMenuModel from '../../models/common/commMenuModel';
-import CommMenuRoleModel from '../../models/common/commMenuRoleModel';
+import CommMenuModel from '../../models/common/CommMenuModel';
+import CommMenuRoleModel from '../../models/common/CommMenuRoleModel';
 
 /**
  * 메뉴 목록 요청 API

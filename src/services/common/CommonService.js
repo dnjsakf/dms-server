@@ -2,13 +2,13 @@ import { QueryTypes } from "sequelize";
 import Sequelize from '../../config/dbConfig';
 
 import BaseModel from "../../models/baseModel";
-import CommMenuModel from "../../models/common/commMenuModel";
-import CommUserModel from "../../models/common/commUserModel";
-import CommRoleModel from "../../models/common/commRoleModel";
-import CommPermissionModel from "../../models/common/commPermissionModel";
-import CommGroupModel from "../../models/common/commGroupModel";
-import CommCodeModel from "../../models/common/commCodeModel";
-import CommCodeItemModel from "../../models/common/commCodeItemModel";
+import CommMenuModel from "../../models/common/CommMenuModel";
+import CommUserModel from "../../models/common/CommUserModel";
+import CommRoleModel from "../../models/common/CommRoleModel";
+import CommPermissionModel from "../../models/common/CommPermissionModel";
+import CommGroupModel from "../../models/common/CommGroupModel";
+import CommCodeModel from "../../models/common/CommCodeModel";
+import CommCodeItemModel from "../../models/common/CommCodeItemModel";
 
 export const getInitData = async ( params ) => {
 

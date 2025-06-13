@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import CommUserRoleModel from '../../models/common/commUserRoleModel';
+import CommUserRoleModel from '../../models/common/CommUserRoleModel';
 
 export const getDataList = async ( params ) => {
   try {

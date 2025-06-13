@@ -1,6 +1,6 @@
 import sequelize from 'sequelize';
 import { getTransaction } from '../../config/dbConfig';
-import CommCodeItemModel from '../../models/common/commCodeItemModel';
+import CommCodeItemModel from '../../models/common/CommCodeItemModel';
 
 /**
  * 목록 요청 API

@@ -2,7 +2,7 @@ import { QueryTypes } from "sequelize";
 import Sequelize from '../../config/dbConfig';
 
 import BaseModel from "../../models/baseModel";
-import MbRuneMstModel from "../../models/mobinogi/mbRuneMstModel";
+import MbRuneMstModel from "../../models/mobinogi/MbRuneMstModel";
 
 /**
  * 타입별로 유니크한 키 생성

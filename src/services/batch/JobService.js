@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import JobModel from '../../models/batch/jobModel';
+import JobModel from '../../models/batch/JobModel';
 
 export const getDataList = async ( params ) => {
   try {

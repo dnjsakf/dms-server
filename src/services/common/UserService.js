@@ -1,8 +1,8 @@
 import sequelize from 'sequelize';
 import { getTransaction } from '../../config/dbConfig';
 import roleService from './RoleService';
-import CommUserModel from '../../models/common/commUserModel';
-import CommUserRoleModel from '../../models/common/commUserRoleModel';
+import CommUserModel from '../../models/common/CommUserModel';
+import CommUserRoleModel from '../../models/common/CommUserRoleModel';
 
 export const getDataList = async ( params ) => {
   try {

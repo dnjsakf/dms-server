@@ -1,6 +1,6 @@
-const JobModel = require('../../src/models/batch/jobModel').default;
-const JobScheduleModel = require('../../src/models/batch/jobScheduleModel').default;
-const JobExecutionModel = require('../../src/models/batch/jobExecutionModel').default;
+const JobModel = require('../../src/models/batch/JobModel').default;
+const JobScheduleModel = require('../../src/models/batch/JobScheduleModel').default;
+const JobExecutionModel = require('../../src/models/batch/JobExecutionModel').default;
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {

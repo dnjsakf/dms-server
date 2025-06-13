@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import CommGroupModel from '../../models/common/commGroupModel';
+import CommGroupModel from '../../models/common/CommGroupModel';
 
 export const getDataList = async ( params ) => {
   try {

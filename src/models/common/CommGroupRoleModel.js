@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import BaseModel from '../baseModel';
 
-import CommGroupModel from './commGroupModel';
-import CommRoleModel from './commRoleModel';
+import CommGroupModel from './CommGroupModel';
+import CommRoleModel from './CommRoleModel';
 
 class CommGroupRoleModel extends BaseModel {}
 CommGroupRoleModel.init({
