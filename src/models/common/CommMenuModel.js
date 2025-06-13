@@ -1,11 +1,11 @@
 import { DataTypes } from 'sequelize';
 import BaseModel from '../BaseModel';
-import commonService from '../../services/common/CommonService';
+import CommonService from '../../services/common/CommonService';
 
 class CommMenuModel extends BaseModel {
   async onCreate(){
     super.onCreate();
-    const id = await commonService.generateId(CommMenuModel);
+    const id = await CommonService.generateId(CommMenuModel);
     this.setDataValue('menuId', id);
     return this;
   }

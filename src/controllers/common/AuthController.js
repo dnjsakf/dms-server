@@ -3,7 +3,7 @@ import { getPath } from '../../utils/pathUtil';
 import AuthService from '../../services/common/AuthService';
 import UserService from '../../services/common/UserService';
 
-import CommUserModel from '../../models/common/commUserModel';
+import CommUserModel from '../../models/common/CommUserModel';
 
 export const getLogin = async (req, res) => {
   try {
